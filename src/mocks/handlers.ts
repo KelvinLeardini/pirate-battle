@@ -165,3 +165,89 @@ export const handlers = [
     return HttpResponse.json(newEntry, { status: 201 });
   }),
 ];
+
+import axios from 'axios';
+
+// Resiliência de Camada Dupla: Fallback instantâneo caso o Service Worker demore a registrar no primeiro acesso
+export const setupAxiosFallback = () => {
+  axios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const url = error.config?.url;
+      const method = error.config?.method?.toLowerCase();
+
+      if (url && (url.includes('/api/scores') || url.includes('/api/history'))) {
+        if (error.response?.status === 404 || !error.response) {
+          const scenario = getActiveScenario();
+          if (scenario === 'error_500') {
+            return Promise.reject(error);
+          }
+          if (scenario === 'timeout') {
+            await delay(5000);
+            return Promise.reject(new Error('Connection timeout'));
+          }
+          if (scenario === 'slow') {
+            await delay(2000);
+          }
+
+          // GET /api/scores
+          if (url.includes('/api/scores') && method === 'get') {
+            if (scenario === 'empty') return { data: [], status: 200, statusText: 'OK', headers: {}, config: error.config };
+            const scores = getScores();
+            scores.sort((a, b) => b.score - a.score);
+            return { data: scores, status: 200, statusText: 'OK', headers: {}, config: error.config };
+          }
+
+          // POST /api/scores
+          if (url.includes('/api/scores') && method === 'post') {
+            const body = typeof error.config?.data === 'string' ? JSON.parse(error.config.data) : error.config?.data;
+            const scores = getScores();
+            if (body?.matchId) {
+              const existing = scores.find((s) => s.matchId === body.matchId);
+              if (existing) return { data: existing, status: 200, statusText: 'OK', headers: {}, config: error.config };
+            }
+            const newScore: ScoreEntry = {
+              id: crypto.randomUUID(),
+              matchId: body?.matchId,
+              player: body?.player || 'Captain Jack',
+              score: body?.score ?? 0,
+              date: body?.date || new Date().toLocaleString('en-US', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', ' ·'),
+              isCurrentUser: true,
+            };
+            saveScore(newScore);
+            return { data: newScore, status: 201, statusText: 'Created', headers: {}, config: error.config };
+          }
+
+          // GET /api/history
+          if (url.includes('/api/history') && method === 'get') {
+            if (scenario === 'empty') return { data: [], status: 200, statusText: 'OK', headers: {}, config: error.config };
+            const history = getHistory();
+            return { data: history, status: 200, statusText: 'OK', headers: {}, config: error.config };
+          }
+
+          // POST /api/history
+          if (url.includes('/api/history') && method === 'post') {
+            const body = typeof error.config?.data === 'string' ? JSON.parse(error.config.data) : error.config?.data;
+            const history = getHistory();
+            if (body?.matchId) {
+              const existing = history.find((h) => h.matchId === body.matchId);
+              if (existing) return { data: existing, status: 200, statusText: 'OK', headers: {}, config: error.config };
+            }
+            const newEntry: MatchHistoryEntry = {
+              id: crypto.randomUUID(),
+              matchId: body?.matchId,
+              date: body?.date || new Date().toLocaleString('en-US', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', ' ·'),
+              points: body?.points ?? 0,
+              duration: body?.duration || '00:00',
+              result: body?.result || 'TIME UP',
+            };
+            saveHistory(newEntry);
+            return { data: newEntry, status: 201, statusText: 'Created', headers: {}, config: error.config };
+          }
+        }
+      }
+
+      return Promise.reject(error);
+    }
+  );
+};

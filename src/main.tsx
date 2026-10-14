@@ -3,18 +3,24 @@ import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import './index.css';
+import { setupAxiosFallback } from './mocks/handlers';
 
 const queryClient = new QueryClient();
 
+// Inicializa o fallback do Axios para suporte imediato em produção e Vercel
+setupAxiosFallback();
+
 async function enableMocking() {
-  if (import.meta.env.MODE !== 'development') {
-    return;
+  try {
+    const { worker } = await import('./mocks/browser');
+    await worker.start({
+      serviceWorker: {
+        url: '/mockServiceWorker.js',
+      },
+    });
+  } catch (err) {
+    console.warn('MSW worker registration notice:', err);
   }
-  
-  const { worker } = await import('./mocks/browser');
-  
-  // Iniciando sem parâmetros extras para evitar erro de tipagem (ts2353)
-  return worker.start();
 }
 
 enableMocking().then(() => {
