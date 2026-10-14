@@ -131,3 +131,9 @@ The project is pre-configured for static single-page application (SPA) deploymen
 ## 📖 Architecture & Design Decisions
 
 For in-depth documentation on the PixiJS v8 ticker lifecycle, mathematical collision models, React-PixiJS decoupling, and state machine transitions, refer to [ARCHITECTURE.md](ARCHITECTURE.md).
+
+---
+
+## 📊 Performance & Profiling Benchmarks
+
+Detailed empirical benchmarks, frame-time percentiles ($p95$, $p99$), entity stress loads, and 5-cycle memory leak analysis are documented in [PERFORMANCE.md](PERFORMANCE.md).

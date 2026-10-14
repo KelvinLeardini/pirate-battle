@@ -21,6 +21,7 @@ export class EnemyManager {
   public score: number = 0;
   private chaserTexture!: PIXI.Texture;
   private shooterTexture!: PIXI.Texture;
+  private fireTexture!: PIXI.Texture;
 
   constructor(config: GameConfig) {
     this.config = config.enemies;
@@ -29,12 +30,14 @@ export class EnemyManager {
   }
 
   public async init(): Promise<void> {
-    const [chaserTex, shooterTex] = await Promise.all([
+    const [chaserTex, shooterTex, fireTex] = await Promise.all([
       PIXI.Assets.load('/assets/images/retina/ships/ship_3.png'),
       PIXI.Assets.load('/assets/images/retina/ships/ship_21.png'),
+      PIXI.Assets.load('/assets/images/retina/effects/fire_1.png'),
     ]);
     this.chaserTexture = chaserTex;
     this.shooterTexture = shooterTex;
+    this.fireTexture = fireTex;
   }
 
     public update(ticker: PIXI.Ticker, player: Player, projManager: ProjectileManager, islands: CollisionCircle[], bounds: { width: number; height: number }, effectManager: EffectManager) {
@@ -126,7 +129,7 @@ export class EnemyManager {
 
     const type: EnemyType = Math.random() > 0.5 ? 'chaser' : 'shooter';
     const texture = type === 'chaser' ? this.chaserTexture : this.shooterTexture;
-    const enemy = new Enemy(x, y, type, this.config, texture);
+    const enemy = new Enemy(x, y, type, this.config, texture, this.fireTexture);
     
     this.enemies.push(enemy);
     this.container.addChild(enemy.container);

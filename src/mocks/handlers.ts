@@ -20,6 +20,16 @@ export interface MatchHistoryEntry {
   result: 'TIME UP' | 'DEFEATED';
 }
 
+export const DEFAULT_FIXTURE_SCORES: ScoreEntry[] = [
+  { id: 'fix-1', player: 'Blackbeard', score: 28, date: '14 Oct · 14:20', isCurrentUser: false },
+  { id: 'fix-2', player: 'Anne Bonny', score: 22, date: '14 Oct · 13:45', isCurrentUser: false },
+  { id: 'fix-3', player: 'Calico Jack', score: 18, date: '14 Oct · 12:10', isCurrentUser: false },
+  { id: 'fix-4', player: 'Henry Morgan', score: 14, date: '14 Oct · 11:30', isCurrentUser: false },
+  { id: 'fix-5', player: 'Bartholomew', score: 10, date: '14 Oct · 10:15', isCurrentUser: false },
+  { id: 'fix-6', player: 'Mary Read', score: 8, date: '14 Oct · 09:40', isCurrentUser: false },
+  { id: 'fix-7', player: 'Captain Hook', score: 5, date: '14 Oct · 08:05', isCurrentUser: false },
+];
+
 // Gerenciamento do Cenário de Rede Ativo
 export const getActiveScenario = (): NetworkScenario => {
   return (localStorage.getItem('pirate_network_scenario') as NetworkScenario) || 'success';
@@ -30,7 +40,7 @@ export const setActiveScenario = (scenario: NetworkScenario) => {
 };
 
 export const resetNetworkStorage = () => {
-  localStorage.setItem('pirate_battle_scores', JSON.stringify([]));
+  localStorage.setItem('pirate_battle_scores', JSON.stringify(DEFAULT_FIXTURE_SCORES));
   localStorage.setItem('pirate_battle_history', JSON.stringify([]));
   setActiveScenario('success');
 };
@@ -38,8 +48,8 @@ export const resetNetworkStorage = () => {
 const getScores = (): ScoreEntry[] => {
   const data = localStorage.getItem('pirate_battle_scores');
   if (!data) {
-    localStorage.setItem('pirate_battle_scores', JSON.stringify([]));
-    return [];
+    localStorage.setItem('pirate_battle_scores', JSON.stringify(DEFAULT_FIXTURE_SCORES));
+    return [...DEFAULT_FIXTURE_SCORES];
   }
   return JSON.parse(data);
 };
@@ -93,7 +103,7 @@ export const handlers = [
     }
 
     const scores = getScores();
-    scores.sort((a, b) => b.score - a.score);
+    scores.sort((a, b) => b.score - a.score || a.player.localeCompare(b.player));
     return HttpResponse.json(scores);
   }),
 
@@ -194,7 +204,7 @@ export const setupAxiosFallback = () => {
           if (url.includes('/api/scores') && method === 'get') {
             if (scenario === 'empty') return { data: [], status: 200, statusText: 'OK', headers: {}, config: error.config };
             const scores = getScores();
-            scores.sort((a, b) => b.score - a.score);
+            scores.sort((a, b) => b.score - a.score || a.player.localeCompare(b.player));
             return { data: scores, status: 200, statusText: 'OK', headers: {}, config: error.config };
           }
 

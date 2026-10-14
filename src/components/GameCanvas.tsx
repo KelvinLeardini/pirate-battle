@@ -21,6 +21,8 @@ export const GameCanvas: React.FC = () => {
 
   // Estados de Interface e Menus
   const [activeMenu, setActiveMenu] = useState<ActiveMenu>('MAIN_MENU');
+  const activeMenuRef = useRef<ActiveMenu>(activeMenu);
+  activeMenuRef.current = activeMenu;
   const [optionsReturnMenu, setOptionsReturnMenu] = useState<'MAIN_MENU' | 'PAUSED'>('MAIN_MENU');
   const [logInitialTab, setLogInitialTab] = useState<'RANKING' | 'HISTORY'>('RANKING');
 
@@ -185,11 +187,9 @@ const [spawnTime, setSpawnTime] = useState<number>(() => {
     // Tecla de atalho para Pausa (ESC ou P)
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key.toLowerCase() === 'p') {
-        const cur = engineRef.current;
-        if (!cur) return;
-        if (cur.gameState === 'PLAYING') {
+        if (activeMenuRef.current === 'PLAYING') {
           handlePause();
-        } else if (cur.gameState === 'PAUSED') {
+        } else if (activeMenuRef.current === 'PAUSED') {
           handleResume();
         }
       }
@@ -198,14 +198,14 @@ const [spawnTime, setSpawnTime] = useState<number>(() => {
 
     // Pausa automática ao perder o foco da janela (Alt+Tab, clique fora)
     const handleBlur = () => {
-      if (engineRef.current?.gameState === 'PLAYING') {
+      if (activeMenuRef.current === 'PLAYING') {
         handlePause();
       }
     };
 
     // Pausa automática ao ocultar a aba do navegador
     const handleVisibilityChange = () => {
-      if (document.hidden && engineRef.current?.gameState === 'PLAYING') {
+      if (document.hidden && activeMenuRef.current === 'PLAYING') {
         handlePause();
       }
     };

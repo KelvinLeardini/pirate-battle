@@ -8,6 +8,7 @@ export type EnemyType = 'chaser' | 'shooter';
 export class Enemy {
   public container: PIXI.Container;
   private sprite: PIXI.Sprite;
+  private fireSprite?: PIXI.Sprite;
   private healthBar: PIXI.Graphics;
   public health: number;
   public maxHealth: number;
@@ -20,7 +21,7 @@ export class Enemy {
   public cooldown: number = 0;
   private lastShotTime: number = 0;
 
-  constructor(x: number, y: number, type: EnemyType, config: GameConfig['enemies'], texture: PIXI.Texture) {
+  constructor(x: number, y: number, type: EnemyType, config: GameConfig['enemies'], texture: PIXI.Texture, fireTexture?: PIXI.Texture) {
     this.type = type;
     this.container = new PIXI.Container();
     this.container.x = x;
@@ -34,6 +35,15 @@ export class Enemy {
     this.sprite.rotation = -Math.PI / 2;
 
     this.healthBar = new PIXI.Graphics();
+
+    // Deterioração visual: efeito de fogo ao atingir vida crítica (<= 40%)
+    if (fireTexture) {
+      this.fireSprite = new PIXI.Sprite(fireTexture);
+      this.fireSprite.anchor.set(0.5, 0.5);
+      this.fireSprite.scale.set(0.35);
+      this.fireSprite.y = 6;
+      this.fireSprite.visible = false;
+    }
 
     if (type === 'chaser') {
       this.speed = config.chaser.speed;
@@ -54,6 +64,9 @@ export class Enemy {
     this.health = this.maxHealth;
     
     this.container.addChild(this.sprite);
+    if (this.fireSprite) {
+      this.container.addChild(this.fireSprite);
+    }
     this.container.addChild(this.healthBar);
   }
 
@@ -108,10 +121,18 @@ export class Enemy {
 
     this.healthBar.rect(-barWidth / 2, barY, barWidth, barHeight).fill(0x333333);
     this.healthBar.rect(-barWidth / 2, barY, barWidth * percent, barHeight).fill(0xfacc15); // Amarelo para inimigos
+
+    // Deterioração visual: fogo no convés quando a vida fica crítica (<= 40%)
+    if (this.fireSprite) {
+      this.fireSprite.visible = this.health <= this.maxHealth * 0.4;
+    }
   }
 
   public destroy() {
     this.sprite.destroy();
+    if (this.fireSprite) {
+      this.fireSprite.destroy();
+    }
     this.container.destroy({ children: true });
   }
 }
