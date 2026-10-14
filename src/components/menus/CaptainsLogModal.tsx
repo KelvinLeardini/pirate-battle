@@ -63,8 +63,8 @@ export const CaptainsLogModal: React.FC<CaptainsLogModalProps> = ({
   };
 
   return (
-    <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
-      <MenuPanel size="wide" className="py-7 px-8 max-w-3xl">
+    <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-[2px] flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+      <MenuPanel size="wide" className="py-3 sm:py-7 px-3 sm:px-8 max-w-3xl">
         {/* Título Principal */}
         <h2 className="text-3xl font-black text-[#fef08a] tracking-wider uppercase mb-3 drop-shadow-md">
           Captain's Log

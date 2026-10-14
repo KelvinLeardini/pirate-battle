@@ -39,8 +39,8 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   const durationStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
   return (
-    <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[3px] flex items-center justify-center z-50 p-4">
-      <MenuPanel size="normal" className="py-7 px-6">
+    <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-[3px] flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+      <MenuPanel size="normal" className="py-3 sm:py-7 px-4 sm:px-6">
         <h2
           className={`text-4xl font-black tracking-wider uppercase mb-1 drop-shadow-lg ${
             reason === 'TIME UP' ? 'text-amber-400' : 'text-red-500'

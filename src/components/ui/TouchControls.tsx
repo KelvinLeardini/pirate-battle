@@ -61,77 +61,82 @@ const TouchButton: React.FC<TouchButtonProps> = ({ action, iconSrc, label, onAct
 
 export const TouchControls: React.FC<TouchControlsProps> = ({ onAction }) => {
   const [isTouch, setIsTouch] = useState(false);
+  const [isCompact, setIsCompact] = useState(false);
 
-  // Detecta se é celular, tablet ou emulador mobile do navegador
+  // Detecta se é celular, tablet ou emulador mobile do navegador e se a altura é compacta
   useEffect(() => {
-    const checkTouch = () => {
+    const updateLayout = () => {
       const hasTouch =
         'ontouchstart' in window ||
         navigator.maxTouchPoints > 0 ||
         window.matchMedia('(pointer: coarse)').matches;
       setIsTouch(hasTouch);
+      setIsCompact(window.innerHeight < 500);
     };
 
-    checkTouch();
-    window.addEventListener('resize', checkTouch);
-    return () => window.removeEventListener('resize', checkTouch);
+    updateLayout();
+    window.addEventListener('resize', updateLayout);
+    return () => window.removeEventListener('resize', updateLayout);
   }, []);
 
   // Se estiver em PC com mouse/teclado, não renderiza absolutamente nada!
   if (!isTouch) return null;
 
+  const mainSize = isCompact ? 48 : 62;
+  const subSize = isCompact ? 40 : 54;
+
   return (
-    <div className="absolute inset-x-0 bottom-4 px-6 flex justify-between items-end pointer-events-none z-30 select-none">
+    <div className="absolute inset-x-0 bottom-1 sm:bottom-3 px-2 sm:px-6 flex justify-between items-end pointer-events-none z-30 select-none">
       {/* Controles de Navegação (Mão Esquerda) */}
-      <div className="flex flex-col items-center gap-2 pointer-events-auto bg-slate-950/40 p-2 rounded-2xl backdrop-blur-xs border border-white/10">
+      <div className="flex flex-col items-center gap-1 sm:gap-2 pointer-events-auto bg-slate-950/40 p-1 sm:p-2 rounded-2xl backdrop-blur-xs border border-white/10">
         <TouchButton
           action="forward"
           iconSrc="/assets/images/retina/ui/controls/icon_forward.png"
           label="Avançar"
           onAction={onAction}
-          size={64}
+          size={mainSize}
         />
-        <div className="flex gap-4">
+        <div className="flex gap-2 sm:gap-3">
           <TouchButton
             action="rotateLeft"
             iconSrc="/assets/images/retina/ui/controls/icon_turn_left.png"
             label="Girar Esquerda"
             onAction={onAction}
-            size={56}
+            size={subSize}
           />
           <TouchButton
             action="rotateRight"
             iconSrc="/assets/images/retina/ui/controls/icon_turn_right.png"
             label="Girar Direita"
             onAction={onAction}
-            size={56}
+            size={subSize}
           />
         </div>
       </div>
 
       {/* Controles de Disparo (Mão Direita) */}
-      <div className="flex flex-col items-center gap-2 pointer-events-auto bg-slate-950/40 p-2 rounded-2xl backdrop-blur-xs border border-white/10">
+      <div className="flex flex-col items-center gap-1 sm:gap-2 pointer-events-auto bg-slate-950/40 p-1 sm:p-2 rounded-2xl backdrop-blur-xs border border-white/10">
         <TouchButton
           action="shootFront"
           iconSrc="/assets/images/retina/ui/controls/icon_fire_front.png"
           label="Canhão Frontal"
           onAction={onAction}
-          size={64}
+          size={mainSize}
         />
-        <div className="flex gap-4">
+        <div className="flex gap-2 sm:gap-3">
           <TouchButton
             action="shootLeft"
             iconSrc="/assets/images/retina/ui/controls/icon_fire_left.png"
             label="Canhões Bombordo"
             onAction={onAction}
-            size={56}
+            size={subSize}
           />
           <TouchButton
             action="shootRight"
             iconSrc="/assets/images/retina/ui/controls/icon_fire_right.png"
             label="Canhões Boreste"
             onAction={onAction}
-            size={56}
+            size={subSize}
           />
         </div>
       </div>

@@ -249,27 +249,27 @@ const [spawnTime, setSpawnTime] = useState<number>(() => {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-slate-950 font-sans flex items-center justify-center select-none">
-      {/* Simulador de Cenários de Rede MSW posicionado estrategicamente no rodapé esquerdo */}
-      <NetworkSimulator />
+    <div className="relative w-full h-screen h-dvh max-h-dvh overflow-hidden bg-slate-950 font-sans flex items-center justify-center select-none">
+      {/* Simulador de Cenários de Rede MSW (oculto durante a partida para não obstruir controles de toque no mobile) */}
+      {activeMenu !== 'PLAYING' && <NetworkSimulator />}
 
-      {/* 🟢 MOLDURA DA ARENA (1280x720 proporção 16:9 perfeitamente centralizada) */}
-      <div className="relative aspect-[16/9] w-full max-w-[177.78vh] max-h-screen flex items-center justify-center shadow-2xl border border-slate-900 overflow-hidden m-auto">
+      {/* 🟢 MOLDURA DA ARENA (1280x720 proporção 16:9 que se ajusta à altura e largura disponíveis) */}
+      <div className="relative aspect-[16/9] w-full max-w-[177.78dvh] max-h-dvh max-h-full flex items-center justify-center shadow-2xl border border-slate-900 overflow-hidden m-auto">
         {/* Canvas PixiJS 100% centralizado */}
         <div ref={containerRef} className="w-full h-full flex items-center justify-center overflow-hidden" />
 
-        {/* HUD da Partida (Agora 100% dentro da tela da partida!) */}
+        {/* HUD da Partida (Compacto e responsivo para telas pequenas) */}
         {(activeMenu === 'PLAYING' || activeMenu === 'PAUSED') && (
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-start text-white pointer-events-none z-20">
+          <div className="absolute top-2 left-2 right-2 sm:top-4 sm:left-4 sm:right-4 flex justify-between items-start text-white pointer-events-none z-20">
             {/* Barra de Vida do Jogador */}
-            <div className="bg-slate-900/80 backdrop-blur-sm p-3 rounded-xl border border-slate-700/80 shadow-lg min-w-56">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs font-black tracking-wider text-amber-200 uppercase">HP Navio</span>
-                <span className="text-xs font-mono font-bold text-slate-300">
+            <div className="bg-slate-900/80 backdrop-blur-sm p-2 sm:p-3 rounded-xl border border-slate-700/80 shadow-lg min-w-40 sm:min-w-56">
+              <div className="flex justify-between items-center mb-0.5 sm:mb-1">
+                <span className="text-[10px] sm:text-xs font-black tracking-wider text-amber-200 uppercase">HP Navio</span>
+                <span className="text-[10px] sm:text-xs font-mono font-bold text-slate-300">
                   {Math.max(0, health)} / {maxHealth}
                 </span>
               </div>
-              <div className="w-full h-3.5 bg-red-950/80 rounded-full overflow-hidden p-0.5 border border-red-900">
+              <div className="w-full h-2.5 sm:h-3.5 bg-red-950/80 rounded-full overflow-hidden p-0.5 border border-red-900">
                 <div
                   className="h-full bg-linear-to-r from-emerald-500 to-green-400 rounded-full transition-all duration-150"
                   style={{ width: `${Math.max(0, (health / maxHealth) * 100)}%` }}
@@ -278,11 +278,11 @@ const [spawnTime, setSpawnTime] = useState<number>(() => {
             </div>
 
             {/* Tempo, Pontos e Botão de Pausa */}
-            <div className="flex items-center gap-3 pointer-events-auto">
-              <div className="bg-slate-900/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-slate-700/80 text-center min-w-24 shadow-lg">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tempo</p>
+            <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
+              <div className="bg-slate-900/80 backdrop-blur-sm px-2.5 sm:px-4 py-1 sm:py-2 rounded-xl border border-slate-700/80 text-center min-w-16 sm:min-w-24 shadow-lg">
+                <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Tempo</p>
                 <p
-                  className={`text-2xl font-black font-mono ${
+                  className={`text-lg sm:text-2xl font-black font-mono ${
                     timeLeft <= 10 ? 'text-red-400 animate-pulse' : 'text-amber-300'
                   }`}
                 >
@@ -290,15 +290,16 @@ const [spawnTime, setSpawnTime] = useState<number>(() => {
                 </p>
               </div>
 
-              <div className="bg-slate-900/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-slate-700/80 text-center min-w-24 shadow-lg">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Score</p>
-                <p className="text-2xl font-black font-mono text-amber-400">{score}</p>
+              <div className="bg-slate-900/80 backdrop-blur-sm px-2.5 sm:px-4 py-1 sm:py-2 rounded-xl border border-slate-700/80 text-center min-w-16 sm:min-w-24 shadow-lg">
+                <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest">Score</p>
+                <p className="text-lg sm:text-2xl font-black font-mono text-amber-400">{score}</p>
               </div>
 
               <RoundButton
                 iconSrc="/assets/images/retina/ui/controls/icon_pause.png"
                 iconAlt="Pausar jogo"
-                size={48}
+                size={40}
+                className="w-10 h-10 sm:w-12 sm:h-12"
                 onClick={handlePause}
               />
             </div>
